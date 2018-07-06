@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>图片上传测试</title>
+    <style>
+    section {
+        width: 1000px;
+        margin: 50px auto;
+        box-shadow: 0 0 5px 5px #eee;
+        padding: 20px 20px 40px;
+    }
+
+    #api {
+        width: 300px;
+        padding: 10px
+    }
+    </style>
+</head>
+
+<body>
+    <section>
+        <p>输入测试接口:</p>
+        <input type="text" placeholder="https://huangliangbo.com" name="api" id="api">
+        <br>
+        <br>
+        <p>form表单提交：</p>
+        <input type="file" name="file" id="img">
+        <br>
+        <br>
+        <p>base64:</p>
+        <input type="file" name="base64" id="base64">
+        <p>输出：</p>
+        <div id="res"></div>
+    </section>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+    $('#img').change(function(e) {
+        let file = e.target.files[0];
+        let param = new FormData(); //创建form对象
+        param.append('file', file, file.name); //通过append向form对象添加数据   
+        // console.log(file)
+        $.ajax({
+                url: $('#api').val(),
+                type: 'POST',
+                data: param,
+                contentType: false,
+                processData: false,
+            })
+            .done(function(res) {
+                console.log("form-----success");
+                console.log('form:', res)
+                $('#res').text(JSON.stringify(res))
+            })
+            .fail(function() {
+                console.log("form----error");
+            })
+            .always(function() {
+                console.log("form----complete");
+            });
+
+    });
+
+    $('#base64').change(function(e) {
+        let file = e.target.files[0]; // 获取图片信息 可以从中获取图片大小
+        let reader = new FileReader();
+        reader.readAsDataURL(file); // 读出 base64
+        reader.onloadend = function() {
+            // 图片的 base64 格式, 可以直接当成 img 的 src 属性值
+            let dataURL = reader.result; // dataURL 为图片 base64 码
+            // 下面逻辑处理
+            $.ajax({
+                    url: $('#api').val(),
+                    type: 'POST',
+                    data: {
+                        img: dataURL // img 为后端接收参数
+                    },
+                    contentType: false,
+                    processData: false,
+                })
+                .done(function(res) {
+                    console.log("base64 -- success");
+                    console.log('base64:', res)
+                    $('#res').text(JSON.stringify(res))
+                })
+                .fail(function() {
+                    console.log("base64---error");
+                })
+                .always(function() {
+                    console.log("base64----complete");
+                });
+        };
+    });
+    </script>
+</body>
+
+</html>
